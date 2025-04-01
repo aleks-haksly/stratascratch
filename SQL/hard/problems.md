@@ -16,3 +16,24 @@ HAVING count(DISTINCT product_id) - count(DISTINCT product_id) FILTER (WHERE cre
 
 SELECT count(*) AS user_count FROM users_filtered
 ```
+[2. Most Popular Client For Calls](https://platform.stratascratch.com/coding/2029-the-most-popular-client_id-among-users-using-video-and-voice-calls?code_type=1)
+
+Select the most popular client_id based on a count of the number of users who have at least 50% of their events from the following list: 'video call received', 'video call sent', 'voice call received', 'voice call sent'.
+
+```sql
+WITH t as (
+SELECT
+user_id
+FROM fact_events f
+GROUP BY user_id
+HAVING count(event_type) FILTER (WHERE event_type IN ('video call received',
+                        'video call sent', 'voice call received', 'voice call sent')) * 1.0 / count(event_type) >= 0.5)
+                        
+SELECT
+client_id
+FROM t
+INNER JOIN fact_events f USING(user_id)
+GROUP BY client_id
+ORDER BY count(*) DESC
+LIMIT 1
+```
