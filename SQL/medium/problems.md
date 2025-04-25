@@ -84,7 +84,45 @@ LEFT JOIN cookbook_titles c ON s.page_number = c.page_number)
 SELECT (row_number() over(ORDER BY page_number/2)-1)*2 AS left_page_number,
 string_agg(case when page_number % 2 = 1 THEN title END, ',') AS right_title,
 string_agg(case when page_number % 2 = 0 THEN title END, ',') AS left_title
-
 FROM pages
 GROUP BY (page_number / 2)
+```
+[4. Premium Accounts](https://platform.stratascratch.com/coding/2097-premium-acounts?code_type=1)
+
+You have a dataset that records daily active users for each premium account. A premium account appears in the data every day as long as it remains premium. However, some premium accounts may be temporarily discounted, meaning they are not actively paying—this is indicated by a final_price of 0.
+
+
+For each of the first 7 available dates, count the number of premium accounts that were actively paying on that day. Then, track how many of those same accounts remain premium and are still paying exactly 7 days later (regardless of activity in between).
+
+
+Output three columns:
+•   The date of initial calculation.
+•   The number of premium accounts that were actively paying on that day.
+•   The number of those accounts that remain premium and are still paying after 7 days.
+
+```sql
+WITH t as (select 
+account_id, entry_date,
+entry_date + INTERVAL  '7 days' as day7_after
+FROM premium_accounts_by_day
+WHERE final_price > 0),
+
+t2 as (
+SELECT 
+t.entry_date, 
+COUNT(t.account_id) as premium_paid_accounts_after_7d
+FROM premium_accounts_by_day p
+INNER JOIN t ON p.account_id = t.account_id AND p.entry_date = t.day7_after
+WHERE p.final_price > 0
+GROUP By t.entry_date)
+
+SELECT 
+entry_date, 
+COUNT(account_id) as premium_paid_accounts, 
+MAX(t2.premium_paid_accounts_after_7d) as premium_paid_accounts_after_7d
+FROM premium_accounts_by_day
+INNER JOIN t2 USING(entry_date)
+WHERE final_price > 0
+GROUP BY entry_date
+ORDER BY 1
 ```
