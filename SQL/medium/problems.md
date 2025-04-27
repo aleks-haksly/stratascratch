@@ -126,3 +126,30 @@ WHERE final_price > 0
 GROUP BY entry_date
 ORDER BY 1
 ```
+[5. Election Results](https://platform.stratascratch.com/coding/2099-election-results?code_type=1)
+
+The election is conducted in a city and everyone can vote for one or more candidates, or choose not to vote at all. Each person has 1 vote so if they vote for multiple candidates, their vote gets equally split across these candidates. For example, if a person votes for 2 candidates, these candidates receive an equivalent of 0.5 vote each. Some voters have chosen not to vote, which explains the blank entries in the dataset.
+
+
+Find out who got the most votes and won the election. Output the name of the candidate or multiple names in case of a tie.
+To avoid issues with a floating-point error you can round the number of votes received by a candidate to 3 decimal places.
+
+```sql
+WITH vp as (
+SELECT 
+voter,
+round(1.0 / NULLIF(count(candidate), 0), 3) as vote_power
+FROM voting_results
+GROUP BY voter),
+
+ranked as (
+SELECT
+candidate, 
+dense_rank() OVER (ORDER BY sum(vote_power) DESC) as rnk
+FROM voting_results vr
+INNER JOIN vp USING(voter)
+WHERE vp.vote_power IS NOT NULL AND vr.candidate IS NOT NULL
+GROUP BY candidate)
+
+SELECT candidate FROM ranked WHERE rnk = 1
+```
