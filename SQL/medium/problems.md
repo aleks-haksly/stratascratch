@@ -184,3 +184,23 @@ GROUP BY user_firstname || ' ' || user_lastname)
 
 SELECT username FROM rnaked WHERE rnk = 1
 ```
+[Most Lucrative Products (easy)](https://platform.stratascratch.com/coding/2119-most-lucrative-products?code_type=1)
+You have been asked to find the 5 most lucrative products in terms of total revenue for the first half of 2022 (from January to June inclusive).
+Output their IDs and the total revenue.
+
+```sql
+WITH ranked_products as (
+SELECT
+product_id,
+SUM(cost_in_dollars * units_sold) as revenue,
+dense_rank() OVER (ORDER BY SUM(cost_in_dollars * units_sold) DESC) as rnk
+FROM online_orders
+WHERE date_trunc('month', date_sold) BETWEEN '2022-01-01' AND '2022-07-01'::DATE - INTERVAL '1 day'
+GROUP BY product_id)
+
+SELECT 
+product_id,
+revenue
+FROM ranked_products
+WHERE rnk < 6
+```
