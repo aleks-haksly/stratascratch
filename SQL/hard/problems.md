@@ -37,3 +37,14 @@ GROUP BY client_id
 ORDER BY count(*) DESC
 LIMIT 1
 ```
+[3. City With Most Amenities](https://platform.stratascratch.com/coding/9633-city-with-most-amenities?code_type=1)
+
+You're given a dataset of searches for properties on Airbnb. For simplicity, let's say that each search result (i.e., each row) represents a unique host. Find the city with the most amenities across all their host's properties. Output the name of the city.
+
+```sql
+SELECT city
+FROM airbnb_search_details
+GROUP BY city
+ORDER BY sum(array_length(STRING_TO_ARRAY(amenities, ','), 1)) DESC
+LIMIT 1
+```
