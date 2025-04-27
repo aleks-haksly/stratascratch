@@ -165,3 +165,22 @@ from user_flags
 WHERE flag_id IS NOT NULL
 GROUP BY video_id
 ```
+[User with Most Approved Flags](https://platform.stratascratch.com/coding/2104-user-with-most-approved-flags?code_type=1)
+
+Which user flagged the most distinct videos that ended up approved by YouTube? Output, in one column, their full name or names in case of a tie. In the user's full name, include a space between the first and the last name.
+
+```sql
+WITH approved_flags AS (
+SELECT * FROM user_flags uf
+INNER JOIN flag_review fr USING(flag_id)
+WHERE fr.reviewed_outcome = 'APPROVED'),
+
+rnaked AS (
+SELECT 
+user_firstname || ' ' || user_lastname AS username,
+dense_rank() OVER (ORDER BY count(DISTINCT video_id) DESC) as rnk
+FROM approved_flags
+GROUP BY user_firstname || ' ' || user_lastname)
+
+SELECT username FROM rnaked WHERE rnk = 1
+```
