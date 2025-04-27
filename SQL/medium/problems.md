@@ -204,3 +204,58 @@ revenue
 FROM ranked_products
 WHERE rnk < 6
 ```
+
+[7. Find Students At Median Writing](https://platform.stratascratch.com/coding/9610-find-students-with-a-median-writing-score?code_type=1)
+
+Identify the IDs of students who scored exactly at the median for the SAT writing section.
+
+```sql
+WITH median as (
+SELECT
+percentile_cont(0.5) WITHIN GROUP (ORDER BY sat_writing ASC) as med
+FROM sat_scores)
+
+SELECT 
+student_id
+FROM sat_scores
+WHERE sat_writing = (SELECT med FROM median)
+```
+[8. Host Popularity Rental Prices](https://platform.stratascratch.com/coding/9632-host-popularity-rental-prices?code_type=1)
+
+You are given a table named airbnb_host_searches that contains data for rental property searches made by users. Your task is to determine the minimum, average, and maximum rental prices for each host’s popularity rating.
+
+
+The host’s popularity rating is defined as below:
+•   0 reviews: "New"
+•   1 to 5 reviews: "Rising"
+•   6 to 15 reviews: "Trending Up"
+•   16 to 40 reviews: "Popular"
+•   More than 40 reviews: "Hot"
+
+
+Tip: The id column in the table refers to the search ID.
+
+
+Output host popularity rating and their minimum, average and maximum rental prices. Order the solution by min_price.
+
+```sql
+WITH pop as (
+select
+id, 
+CASE WHEN number_of_reviews = 0 THEN 'New'
+     WHEN number_of_reviews <= 5 THEN 'Rising'
+     WHEN number_of_reviews <= 15 THEN 'Trending Up'
+     WHEN number_of_reviews <= 40 THEN 'Popular'
+     ELSE 'Hot' END AS host_popularity 
+from airbnb_host_searches)
+
+SELECT 
+pop.host_popularity,
+min(price) as min_price,
+avg(price) as avg_price,
+max(price) as max_price
+FROM airbnb_host_searches a
+INNER JOIN pop USING(id)
+GROUP BY pop.host_popularity
+ORDER BY 2
+```
