@@ -153,3 +153,15 @@ GROUP BY candidate)
 
 SELECT candidate FROM ranked WHERE rnk = 1
 ```
+
+[6. Flags per Video](https://platform.stratascratch.com/coding/2102-flags-per-video?code_type=1)
+
+For each video, find how many unique users flagged it. A unique user can be identified using the combination of their first name and last name. Do not consider rows in which there is no flag ID.
+
+```sql
+SELECT
+video_id, count(DISTINCT COALESCE(user_firstname, '') || COALESCE(user_lastname, '')) AS num_unique_users
+from user_flags
+WHERE flag_id IS NOT NULL
+GROUP BY video_id
+```
