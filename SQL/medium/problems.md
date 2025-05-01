@@ -259,3 +259,19 @@ INNER JOIN pop USING(id)
 GROUP BY pop.host_popularity
 ORDER BY 2
 ```
+[8. Count Occurrences Of Words In Drafts](https://platform.stratascratch.com/coding/9817-find-the-number-of-times-each-word-appears-in-drafts?code_type=1)
+
+Find the number of times each word appears in the contents column across all rows in the drafts dataset. Output two columns: word and occurrences.
+
+```sql
+WITH t as (
+SELECT
+UNNEST(STRING_TO_ARRAY(replace, ' ')) as word from (select regexp_replace(contents, '[[:punct:]]', '', 'g') as replace
+FROM google_file_store))
+
+SELECT
+LOWER(word), count(*) as occurrences
+FROM t
+GROUP BY LOWER(word)
+ORDER BY 2 DESC
+```
