@@ -48,3 +48,19 @@ GROUP BY city
 ORDER BY sum(array_length(STRING_TO_ARRAY(amenities, ','), 1)) DESC
 LIMIT 1
 ```
+
+[4. Top 5 States With 5 Star Businesses](https://platform.stratascratch.com/coding/10046-top-5-states-with-5-star-businesses?code_type=1)
+
+Find the top 5 states with the most 5 star businesses. Output the state name along with the number of 5-star businesses and order records by the number of 5-star businesses in descending order. In case there are ties in the number of businesses, return all the unique states. If two states have the same result, sort them in alphabetical order.
+
+```sql
+SELECT state, n_businesses FROM (
+SELECT 
+state, 
+count(stars) FILTER (WHERE stars = 5) AS n_businesses,
+DENSE_RANK() OVER  (ORDER BY count(stars) FILTER (WHERE stars = 5) DESC) as rnk
+FROM yelp_business
+GROUP BY state
+ORDER BY n_businesses DESC, state) sub
+WHERE sub.rnk < 6
+```
